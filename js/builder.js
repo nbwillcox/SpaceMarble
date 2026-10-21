@@ -18,6 +18,7 @@
   B.put = function (ix, iy, h, sx, sy, o) {
     const k = key(ix, iy);
     if (o.keep && this.cells.has(k)) return;
+    if (this.cells.has(k)) this.overlaps = (this.overlaps || 0) + 1; this.overlapAt = this.overlapAt || [ix, iy, this.group];                      /* the track crossed itself: a design slip */
     this.cells.set(k, { x: ix, y: iy, h, sx, sy, surf: o.surf === undefined ? this.surf : o.surf, aux: o.aux || 0, mat: o.mat === undefined ? this.mat : o.mat, want: o.want, grp: this.group, ex: o.ex });
   };
 
@@ -46,7 +47,7 @@
       }
       if (o.path !== false) {
         const t = k + 0.5, z = z0 + slope * t;
-        this.path.push({ x: this.pos.x + a[0] * t + (alongX ? 0 : cc - this.pos.x), y: this.pos.y + a[1] * t + (alongX ? cc - this.pos.y : 0), z, air: false, safe: o.surf !== S.CRUMBLE && o.surf !== S.ACID && o.safe !== false, grp: this.group });
+        this.path.push({ x: this.pos.x + a[0] * t + (alongX ? 0 : cc - this.pos.x), y: this.pos.y + a[1] * t + (alongX ? cc - this.pos.y : 0), z, air: false, safe: o.surf !== S.CRUMBLE && o.surf !== S.GLASS && o.surf !== S.ACID && o.safe !== false, grp: this.group });
       }
     }
     this.seg = { x0: this.pos.x, y0: this.pos.y, dir: this.dir, len, z0, slope, w, cc };
@@ -166,7 +167,7 @@
     }
     wd.bounds();
     const sh = (p) => Object.assign({}, p, { x: p.x + ox, y: p.y + oy });
-    const lvl = Object.assign({}, meta, { world: wd, path: this.path.map(sh), haz: this.haz.map(sh), foes: this.foes.map(sh), gems: this.gems.map(sh), theme: this.theme, ox, oy });
+    const lvl = Object.assign({}, meta, { overlaps: this.overlaps || 0, overlapAt: this.overlapAt, world: wd, path: this.path.map(sh), haz: this.haz.map(sh), foes: this.foes.map(sh), gems: this.gems.map(sh), theme: this.theme, ox, oy });
     for (const h of lvl.haz) for (const k of ['x2', 'y2']) if (h[k] !== undefined) h[k] += (k === 'x2' ? ox : oy);
     for (const p of [...lvl.foes, ...lvl.haz]) if (p.patrol) p.patrol = p.patrol.map((q) => ({ x: q.x + ox, y: q.y + oy }));
     for (const h of lvl.haz) if (h.cells) h.cells = h.cells.map(([cx, cy]) => [cx + ox, cy + oy]);

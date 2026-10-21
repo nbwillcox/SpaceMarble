@@ -21,6 +21,7 @@
     if (G.debug.time) { Game.sim.time = Game.sim.limit = G.debug.time; }
     Game.sim.bot = Game.demo;
     R.load(lv);
+    if (G.scenery) G.scenery.build(lv);
     FX.reset(); FX.world = lv.world;
     const st = lv.start;
     Game.cam = { x: st.x, y: st.y, z: Game.sim.m.z };
@@ -67,6 +68,7 @@
     Game.beginRace();
     return true;
   };
+  function hexA(h) { const n = parseInt(h.slice(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',1)'; }
   function hex(h) { const n = parseInt(h.slice(1), 16); return (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255); }
 
   /* ---------------- per-frame update ---------------- */
@@ -78,6 +80,8 @@
     Game.bannerT = Math.max(0, Game.bannerT - dtReal); Game.timePop = Math.max(0, Game.timePop - dtReal); Game.hintT = Math.max(0, Game.hintT - dtReal);
     Game.kick *= Math.max(0, 1 - 6 * dtReal);
     FX.update(dt);
+    Game.moteT = (Game.moteT || 0) - dtReal;
+    if (Game.moteT <= 0 && !S.reduced && Game.level) { Game.moteT = 0.09; const c = Game.cam; FX.mote(c.x + U.rand(-9, 9), c.y + U.rand(-9, 9), c.z + U.rand(-2, 4), Game.level.theme.accent.replace('#', '') ? hexA(Game.level.theme.accent) : 'rgba(120,230,255,0.9)'); }
     const sim = Game.sim, m = sim.m;
     I.update();
     I.ref.x = R.sx(m.x, m.y); I.ref.y = R.sy(m.x, m.y, m.z);
@@ -176,9 +180,9 @@
         case 'shatter': Game.shatterFx(e); break;
         case 'fall': A.sfx.fall(); Game.tip('Off the edge!', 1.4); FX.addShake(2); break;
         case 'respawn': FX.ring(e.x, e.y, e.z, 0.1, 1.6, CY, 0.7, 3); FX.beam(e.x, e.y, e.z, 3.2, 'rgba(120,230,255,0.9)', 0.7, 22); FX.sparks(e.x, e.y, e.z + 0.3, 18, 4, CY, 0.6, 1.5, 1.2); A.sfx.respawn(); break;
-        case 'tilecrack': A.sfx.tilecrack(e.k); FX.dust(e.x, e.y, e.z, 2, 5, '#8a6a4e'); FX.sparks(e.x, e.y, e.z, 4, 2.6, 'rgba(255,170,90,1)', 0.35, 1.3); break;
-        case 'tilehit': FX.decal(e.x, e.y, e.z + 0.01, 1.2, 5); FX.dust(e.x, e.y, e.z, 5, 7, '#8a6a4e'); break;
-        case 'tilebreak': FX.chunks(e.x, e.y, e.z, 12, 3.2); FX.dust(e.x, e.y, e.z, 8, 9, '#8a6a4e'); FX.sparks(e.x, e.y, e.z, 14, 5, 'rgba(255,170,90,1)', 0.6, 1.6); FX.ring(e.x, e.y, e.z, 0.2, 1.4, 'rgba(255,170,90,1)', 0.45, 3); FX.addShake(4); A.sfx.tilebreak(); break;
+        case 'tilecrack': if (e.glass) { A.sfx.glassCrack(e.k); FX.sparks(e.x, e.y, e.z, 7, 4, 'rgba(220,250,255,1)', 0.4, 1.4); FX.shards(e.x, e.y, e.z, 2, 2.4, 195, 0, 0); } else { A.sfx.tilecrack(e.k); FX.dust(e.x, e.y, e.z, 2, 5, '#8a6a4e'); FX.sparks(e.x, e.y, e.z, 4, 2.6, 'rgba(255,170,90,1)', 0.35, 1.3); } break;
+        case 'tilehit': FX.decal(e.x, e.y, e.z + 0.01, 1.2, 5); if (e.glass) FX.shards(e.x, e.y, e.z, 4, 3, 195, 0, 0); else FX.dust(e.x, e.y, e.z, 5, 7, '#8a6a4e'); break;
+        case 'tilebreak': if (e.glass) { FX.shards(e.x, e.y, e.z, 16, 4.5, 190, 0, 0); FX.sparks(e.x, e.y, e.z, 20, 6, 'rgba(220,250,255,1)', 0.6, 1.7); FX.ring(e.x, e.y, e.z, 0.2, 1.5, 'rgba(180,240,255,1)', 0.45, 3); FX.glowPop(e.x, e.y, e.z, 40, 'rgba(160,235,255,1)', 0.3); FX.addShake(4); A.sfx.glassBreak(); break; } FX.chunks(e.x, e.y, e.z, 12, 3.2); FX.dust(e.x, e.y, e.z, 8, 9, '#8a6a4e'); FX.sparks(e.x, e.y, e.z, 14, 5, 'rgba(255,170,90,1)', 0.6, 1.6); FX.ring(e.x, e.y, e.z, 0.2, 1.4, 'rgba(255,170,90,1)', 0.45, 3); FX.addShake(4); A.sfx.tilebreak(); break;
         case 'tileform': FX.ring(e.x, e.y, e.z, 0.1, 0.9, CY, 0.4, 2); A.sfx.tileform(); break;
         case 'laser': A.sfx.laser(); break;
         case 'slam': FX.dust(e.x, e.y, e.z, 14, 11); FX.sparks(e.x, e.y, e.z, 18, 6, 'rgba(255,200,110,1)', 0.5, 1.8); FX.ring(e.x, e.y, e.z, 0.5, Math.max(e.w, e.h) * 1.1, 'rgba(255,190,90,1)', 0.5, 4); FX.addShake(7); A.sfx.slam(); break;
@@ -209,20 +213,20 @@
   Game.crackFx = function (e) {
     FX.shards(e.x, e.y, e.z + C.R, 7, 4, 195, 0, 0);
     FX.sparks(e.x, e.y, e.z + C.R, 16, 7, 'rgba(210,248,255,1)', 0.5, 1.8);
-    FX.glowPop(e.x, e.y, e.z + C.R, 52, 'rgba(180,240,255,1)', 0.3);
+    FX.glowPop(e.x, e.y, e.z + C.R, 38, 'rgba(180,240,255,1)', 0.26);
     FX.ring(e.x, e.y, e.z, 0.15, 1.1, 'rgba(200,245,255,1)', 0.4, 3);
-    FX.doFlash(0.25, '210,245,255'); FX.addShake(7); Game.kick = 1; Game.slow = Math.max(Game.slow, 0.12);
+    FX.doFlash(0.14, '210,245,255'); FX.addShake(7); Game.kick = 1; Game.slow = Math.max(Game.slow, 0.12);
     A.sfx.crack(e.stage);
     Game.tip(e.stage >= 2 ? 'Hull critical - one more hit and it shatters!' : 'Hull cracked!', 2);
   };
   Game.shatterFx = function (e) {
     const x = e.x, y = e.y, z = e.z;
     FX.shards(x, y, z, 30, 7.5, 195, e.vx, e.vy); FX.shards(x, y, z, 12, 4.5, 280, e.vx, e.vy);
-    FX.glowPop(x, y, z, 90, 'rgba(120,230,255,1)', 0.55); FX.glowPop(x, y, z, 42, WH, 0.28);
+    FX.glowPop(x, y, z, 62, 'rgba(120,230,255,1)', 0.45); FX.glowPop(x, y, z, 26, WH, 0.2);
     FX.ring(x, y, z - C.R, 0.2, 2.8, 'rgba(160,242,255,1)', 0.65, 4); FX.ring(x, y, z - C.R, 0.1, 1.6, WH, 0.4, 2);
     FX.sparks(x, y, z, 30, 9, 'rgba(200,248,255,1)', 0.75, 1.9); FX.sparks(x, y, z, 14, 5, WH, 0.5, 1.4);
     FX.decal(x, y, z - C.R + 0.01, 1.5, 6);
-    FX.doFlash(0.5, '200,245,255'); FX.addShake(12); Game.kick = 1.4; Game.slow = 0.42;
+    FX.doFlash(0.26, '200,245,255'); FX.addShake(12); Game.kick = 1.4; Game.slow = 0.42;
     A.sfx.shatter(); A.roll(0, false, 0);
     const cause = e.cause;
     if (cause === 'laser') { FX.sparks(x, y, z, 20, 9, 'rgba(255,80,120,1)', 0.6, 2); Game.tip('Sliced by a laser gate', 2); }

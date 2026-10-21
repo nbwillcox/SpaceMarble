@@ -26,8 +26,7 @@
   function crusher(b, t, len, o) { const s = b.seg, r = b.rect(t, t + len, -s.w / 2, s.w / 2); b.h('crusher', Object.assign({ x: r.x, y: r.y, w: r.w, h: r.h }, o)); }
   function spikes(b, t, len, o) { b.h('spikes', Object.assign({ cells: b.segCells(t, t + len) }, o)); }
   function bumper(b, t, c) { const p = at(b, t, c); b.h('bumper', { x: p.x, y: p.y, r: 0.42 }); }
-  function post(b, t, c) { const p = at(b, t, c); b.h('post', { x: p.x, y: p.y, r: 0.34, h: 1.3 }); }
-  function mine(b, t, c, z) { const p = at(b, t, c); b.h('mine', { x: p.x, y: p.y }); }
+  function mine(b, t, c) { const p = at(b, t, c); b.h('mine', { x: p.x, y: p.y }); }
   function sweeper(b, t, c, o) { const p = at(b, t, c); b.h('sweeper', Object.assign({ x: p.x, y: p.y }, o)); }
   function turret(b, t, c, dir, o) { const p = at(b, t, c); b.h('turret', Object.assign({ x: p.x, y: p.y, dir }, o)); }
   function gate(b, t0, t1, o) { b.paint(t0, t1, -20, 20, { mat: 3 }); b.h('gate', Object.assign({ cells: b.segCells(t0, t1) }, o)); }
@@ -35,11 +34,11 @@
 
   /* ======================================================================== 1. PRACTICE RACE */
   L.push({
-    id: 1, name: 'PRACTICE RACE', sub: 'Launch Deck', time: 60, par: 24, seed: 11, music: 0,
+    id: 1, name: 'PRACTICE RACE', sub: 'Launch Deck', time: 70, par: 30, seed: 11, music: 0,
     theme: { hue: 212, accent: '#37b6ff', accent2: '#ff3dd0', lamp: '#8fe4ff' },
     build() {
       const b = new Builder(this.theme);
-      b.setPos(0, 0.5, 0, 9);
+      b.setPos(0, 0.5, 0, 11);
       startPad(b, 6, 5);
       b.width(3);
       b.ramp(8, -2.2);
@@ -51,6 +50,7 @@
       b.flat(2);
       b.left();
       b.flat(3);
+      /* the wide hairpin */
       b.width(5);
       b.flat(5); gem(b, 2.5, 0);
       b.right(); b.flat(2); b.right();
@@ -58,13 +58,24 @@
       b.width(3);
       b.ramp(6, -1.6);
       b.flat(3);
+      /* a hill: the marble carries its speed up the far side */
+      b.ramp(8, -2.4);
+      b.ramp(5, 0.9);
+      b.flat(3); gem(b, 1.5, 0);
+      /* a narrow lane with rails */
       b.width(2);
       b.flat(9); gem(b, 4.5, 0);
       b.width(3);
       b.stairs(4, 0.4, 3);
       b.flat(2);
       b.left();
+      b.flat(3);
+      b.right();
+      b.flat(3);
+      b.left();
+      b.flat(2);
       b.ramp(8, -1.6);
+      timeGem(b, 4, 0);
       b.flat(3);
       b.width(5);
       goalPad(b, 5, 5);
@@ -74,11 +85,11 @@
 
   /* ======================================================================== 2. BEGINNER RACE */
   L.push({
-    id: 2, name: 'BEGINNER RACE', sub: 'Crystal Reach', time: 70, par: 30, seed: 23, music: 1,
+    id: 2, name: 'BEGINNER RACE', sub: 'Crystal Reach', time: 80, par: 38, seed: 23, music: 1,
     theme: { hue: 285, accent: '#c06aff', accent2: '#37e6ff', lamp: '#e2a8ff' },
     build() {
       const b = new Builder(this.theme);
-      b.setPos(0, 0.5, 0, 10);
+      b.setPos(0, 0.5, 0, 12);
       startPad(b, 6, 5);
       b.width(3);
       b.ramp(10, -3.0);
@@ -93,7 +104,7 @@
       b.strip(8, { surf: S.CRUMBLE });
       gem(b, 4, 0);
       b.flat(2);
-      /* the first jump: speed up the ramp, leap the gap */
+      /* the first jump: speed down the ramp, leap the gap */
       b.ramp(10, -3.0);
       b.flat(2);
       b.ramp(3, 1.2);
@@ -101,7 +112,7 @@
       b.strip(6, { capStart: false });
       b.right();
       b.width(1);
-      b.flat(10);
+      b.flat(10); gem(b, 5, 0);
       b.width(5);
       b.flat(4);
       /* bumper field */
@@ -116,6 +127,24 @@
       b.flat(2);
       b.right();
       b.ramp(8, -1.8);
+      b.flat(2);
+      /* a muncher guards the second half: hit it fast to flatten it */
+      b.width(5);
+      b.flat(8); muncher(b, 5, 0, 3, 7);
+      b.width(3);
+      b.flat(2);
+      b.left();
+      b.strip(7, { surf: S.ICE }); gem(b, 3, 0);
+      b.flat(2);
+      b.ramp(11, -3.4);
+      b.flat(2);
+      b.ramp(3, 1.2);
+      b.gap(3, -0.6);
+      b.strip(5);
+      b.right();
+      b.flat(2);
+      b.ramp(8, -1.8);
+      timeGem(b, 4, 0);
       b.flat(3);
       b.width(5);
       goalPad(b, 5, 5);
@@ -125,11 +154,11 @@
 
   /* ======================================================================== 3. INTERMEDIATE RACE */
   L.push({
-    id: 3, name: 'INTERMEDIATE RACE', sub: 'Frost Foundry', time: 95, par: 52, seed: 37, music: 2,
+    id: 3, name: 'INTERMEDIATE RACE', sub: 'Frost Foundry', time: 110, par: 56, seed: 37, music: 2,
     theme: { hue: 172, accent: '#35f0d0', accent2: '#ffd24a', lamp: '#a8fff0' },
     build() {
       const b = new Builder(this.theme);
-      b.setPos(0, 0.5, 0, 11);
+      b.setPos(0, 0.5, 0, 13);
       startPad(b, 6, 5);
       b.width(3);
       b.ramp(10, -3.2);
@@ -157,6 +186,9 @@
       b.flat(3);
       b.stairs(4, 0.45, 3);
       b.flat(2);
+      /* a glass bridge: roll gently, speed shatters it */
+      b.strip(8, { surf: S.GLASS }); gem(b, 4, 0);
+      b.flat(2);
       /* the press */
       b.flat(8); crusher(b, 3, 2, { period: 3.6, phase: 0 });
       b.flat(2);
@@ -172,6 +204,13 @@
       b.flat(8); spikes(b, 3, 2, { period: 3, phase: 0 });
       b.flat(2);
       b.right();
+      b.ramp(7, -1.8);
+      b.flat(3);
+      b.width(5);
+      b.flat(6); coil(b, 3, 0, 1, 5);
+      b.width(3);
+      b.flat(2);
+      b.left();
       b.ramp(7, -1.6);
       b.flat(3);
       b.width(5);
@@ -182,11 +221,11 @@
 
   /* ======================================================================== 4. AERIAL RACE */
   L.push({
-    id: 4, name: 'AERIAL RACE', sub: 'Skyrail', time: 85, par: 44, seed: 41, music: 3,
+    id: 4, name: 'AERIAL RACE', sub: 'Skyrail', time: 100, par: 50, seed: 41, music: 3,
     theme: { hue: 132, accent: '#6dff7a', accent2: '#ff9a3d', lamp: '#b8ffbd' },
     build() {
       const b = new Builder(this.theme);
-      b.setPos(0, 0.5, 0, 14);
+      b.setPos(0, 0.5, 0, 16);
       startPad(b, 6, 5);
       b.width(3);
       b.ramp(12, -4.2);
@@ -216,6 +255,9 @@
       b.flat(9); mine(b, 3, -1.4); mine(b, 5.5, 1.4); mine(b, 7.8, -1.4);
       b.width(3);
       b.flat(3);
+      /* a glass runway */
+      b.strip(8, { surf: S.GLASS }); gem(b, 4, 0);
+      b.flat(2);
       b.ramp(12, -4.6);
       b.flat(2);
       b.ramp(3, 1.8);
@@ -232,11 +274,11 @@
 
   /* ======================================================================== 5. SILLY RACE */
   L.push({
-    id: 5, name: 'SILLY RACE', sub: 'Pinball Garden', time: 80, par: 38, seed: 53, music: 4,
+    id: 5, name: 'SILLY RACE', sub: 'Pinball Garden', time: 95, par: 44, seed: 53, music: 4,
     theme: { hue: 38, accent: '#ffb347', accent2: '#ff3dd0', lamp: '#ffe0a8' },
     build() {
       const b = new Builder(this.theme);
-      b.setPos(0, 0.5, 0, 12);
+      b.setPos(0, 0.5, 0, 14);
       startPad(b, 6, 5);
       b.width(3);
       b.ramp(9, -2.6);
@@ -248,7 +290,7 @@
       b.strip(7, { surf: S.CONVEY });
       timeGem(b, 3, 0);
       b.left();
-      /* sticky goo with a bounce pad into a high platform */
+      /* sticky goo, then a pinball field */
       b.flat(3);
       b.paint(0, 3, -20, 20, { surf: S.GOO });
       b.width(5);
@@ -276,8 +318,20 @@
       b.flat(4);
       b.stairs(3, 0.45, 3);
       b.left();
+      b.flat(2);
+      /* a trampoline: the pad throws you over a crumbling stretch */
+      b.strip(2, { surf: S.BOUNCE });
+      b.strip(6, { surf: S.CRUMBLE }); gem(b, 3, 0);
+      b.flat(3);
       b.ramp(7, -1.4);
       b.flat(3);
+      b.width(5);
+      b.flat(6); bumper(b, 1.6, -1.4); bumper(b, 3.2, 1.4); bumper(b, 4.8, -1.4);
+      b.width(3);
+      b.flat(2);
+      b.right();
+      b.ramp(6, -1.4);
+      b.flat(2);
       b.width(5);
       goalPad(b, 5, 5);
       return b.finish(this);
@@ -286,11 +340,11 @@
 
   /* ======================================================================== 6. ULTIMATE RACE */
   L.push({
-    id: 6, name: 'ULTIMATE RACE', sub: 'Event Horizon', time: 110, par: 66, seed: 67, music: 5,
+    id: 6, name: 'ULTIMATE RACE', sub: 'Event Horizon', time: 130, par: 70, seed: 67, music: 5,
     theme: { hue: 335, accent: '#ff4a8d', accent2: '#37e6ff', lamp: '#ffb0cf' },
     build() {
       const b = new Builder(this.theme);
-      b.setPos(0, 0.5, 0, 16);
+      b.setPos(0, 0.5, 0, 18);
       startPad(b, 6, 5);
       b.width(3);
       b.ramp(11, -3.6);
@@ -321,13 +375,15 @@
       b.left();
       b.flat(8); crusher(b, 2, 2, { period: 3.0, phase: 0 }); crusher(b, 5.5, 2, { period: 3.0, phase: 1.5 });
       b.flat(2);
+      /* glass again, with an orb on it */
+      b.strip(7, { surf: S.GLASS }); orb(b, 3, 0);
+      b.flat(2);
       b.ramp(12, -4.4);
       b.flat(2);
       b.ramp(3, 1.8);
       b.gap(5, -1.5);
-      b.strip(4, { w: 5 });
+      b.strip(4);
       b.right();
-      b.width(3);
       b.flat(9); coil(b, 4.5, 0, 2, 7);
       b.flat(3);
       b.ramp(8, -2.0);

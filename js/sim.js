@@ -4,6 +4,7 @@
   const C = G.C, S = C.S, U = G.U, TAU = U.TAU, BIT = G.World.BIT;
   const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];
   const clamp = U.clamp;
+  const isFrag = (s) => s === S.CRUMBLE || s === S.GLASS;                       /* tiles that crack and fall: crumbling slabs and fragile glass */
 
   function Sim(level, opts) {
     opts = opts || {};
@@ -80,7 +81,7 @@
   P.respawn = function () {
     const m = this.m, W = this.world;
     let i = Math.max(0, this.pi - 3);
-    for (; i > 0; i--) { const p = this.path[i]; if (p.safe && !p.air && isFinite(W.heightAt(p.x, p.y)) && W.surf[W.idx(Math.floor(p.x), Math.floor(p.y))] !== S.CRUMBLE) break; }
+    for (; i > 0; i--) { const p = this.path[i]; if (p.safe && !p.air && isFinite(W.heightAt(p.x, p.y)) && !isFrag(W.surf[W.idx(Math.floor(p.x), Math.floor(p.y))])) break; }
     const p = this.path[i] || this.level.start;
     m.x = p.x; m.y = p.y; m.z = W.heightAt(p.x, p.y); m.vx = m.vy = m.vz = 0; m.grounded = true; m.rate = 0;
     m.integ = 1; m.dead = false; m.falling = false; m.inv = 1.6; m.trail.length = 0;
@@ -211,7 +212,7 @@
   P.landed = function (b, rel, ci) {
     if (rel < C.HIT_SOFT * 0.55) return;
     const W = this.world, e = { rel, x: b.x, y: b.y, z: b.z, surf: ci >= 0 ? W.surf[ci] : 0 };
-    if (ci >= 0 && W.surf[ci] === S.CRUMBLE) { W.crack[ci] = Math.min(1, W.crack[ci] + clamp((rel - 4) / 10, 0.15, 1)); this.emit('tilehit', { i: ci, rel, x: b.x, y: b.y, z: b.z }); }
+    if (ci >= 0 && isFrag(W.surf[ci])) { W.crack[ci] = Math.min(1, W.crack[ci] + (W.surf[ci] === S.GLASS ? clamp((rel - 3) / 6, 0.35, 1) : clamp((rel - 4) / 10, 0.15, 1))); this.emit('tilehit', { i: ci, rel, x: b.x, y: b.y, z: b.z, glass: W.surf[ci] === S.GLASS }); }
     if (rel >= C.HIT_BREAK) { this.emit('land', Object.assign({ level: 3 }, e)); this.shatter('impact'); }
     else if (rel >= C.HIT_HARD) { this.emit('land', Object.assign({ level: 2 }, e)); this.hurt(0.34, 'impact'); }
     else if (rel >= C.HIT_SOFT) this.emit('land', Object.assign({ level: 1 }, e));
@@ -288,29 +289,29 @@
   /* ================= tiles that crumble ================= */
   P.updateCrumble = function (dt) {
     const W = this.world, m = this.m;
-    if (!this.hasCrumble) { this.hasCrumble = W.surf.includes(S.CRUMBLE) ? 1 : 2; }
+    if (!this.hasCrumble) { this.hasCrumble = (W.surf.includes(S.CRUMBLE) || W.surf.includes(S.GLASS)) ? 1 : 2; }
     if (this.hasCrumble === 2) return;
     if (m.grounded && !m.dead && !m.falling) {
       const i = W.idx(Math.floor(m.x), Math.floor(m.y));
-      if (i >= 0 && W.kind[i] === 1 && W.surf[i] === S.CRUMBLE) {
-        const before = W.crack[i];
-        W.crack[i] = Math.min(1, W.crack[i] + dt * (0.45 + Math.hypot(m.vx, m.vy) * 0.03));
-        if (Math.floor(before * 4) !== Math.floor(W.crack[i] * 4)) this.emit('tilecrack', { i, k: W.crack[i], x: m.x, y: m.y, z: m.z });
+      if (i >= 0 && W.kind[i] === 1 && isFrag(W.surf[i])) {
+        const before = W.crack[i], sp = Math.hypot(m.vx, m.vy), glass = W.surf[i] === S.GLASS;
+        W.crack[i] = Math.min(1, W.crack[i] + dt * (glass ? (sp > 6.8 ? 3.2 : 0.04) : 0.8 + sp * 0.03));          /* glass takes a gentle roll but shatters under speed */
+        if (Math.floor(before * 4) !== Math.floor(W.crack[i] * 4)) this.emit('tilecrack', { i, k: W.crack[i], x: m.x, y: m.y, z: m.z, glass });
       }
     }
     if (this.crumbleActive === undefined || this.t - this.crumbleScan > 0.12) {
       this.crumbleScan = this.t;
       this.crumbleList = [];
-      for (let i = 0; i < W.surf.length; i++) if (W.surf[i] === S.CRUMBLE && (W.crack[i] > 0 || W.regrow[i] > 0)) this.crumbleList.push(i);
+      for (let i = 0; i < W.surf.length; i++) if (isFrag(W.surf[i]) && (W.crack[i] > 0 || W.regrow[i] > 0)) this.crumbleList.push(i);
       this.crumbleActive = true;
     }
     for (const i of this.crumbleList) {
       if (W.kind[i] === 1) {
         if (W.crack[i] >= 1) {
-          W.kind[i] = 0; W.regrow[i] = 7.5;
+          W.kind[i] = 0; W.regrow[i] = W.surf[i] === S.GLASS ? 8.5 : 7.5;
           const x = i % W.w, y = (i / W.w) | 0;
-          this.emit('tilebreak', { i, x: x + 0.5, y: y + 0.5, z: W.hz[i] + W.sx[i] * 0.5 + W.sy[i] * 0.5 });
-          for (const [dx, dy] of DIRS) { const j = W.idx(x + dx, y + dy); if (j >= 0 && W.kind[j] === 1 && W.surf[j] === S.CRUMBLE) W.crack[j] = Math.max(W.crack[j], 0.42); }
+          this.emit('tilebreak', { i, x: x + 0.5, y: y + 0.5, z: W.hz[i] + W.sx[i] * 0.5 + W.sy[i] * 0.5, glass: W.surf[i] === S.GLASS });
+          for (const [dx, dy] of DIRS) { const j = W.idx(x + dx, y + dy); if (j >= 0 && W.kind[j] === 1 && isFrag(W.surf[j])) W.crack[j] = Math.max(W.crack[j], W.surf[j] === S.GLASS ? 0.4 : 0.55); }
           this.crumbleScan = -9;
         }
       } else if (W.regrow[i] > 0) {
@@ -446,7 +447,7 @@
         const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy);
         if (sp > 0 && d > 0.02) {
           const nx = e.x + dx / d * sp * dt, ny = e.y + dy / d * sp * dt, g0 = W.heightAt(e.x, e.y), g1 = W.heightAt(nx, ny);
-          if (g1 > -Infinity && Math.abs(g1 - g0) < 0.45 && W.surf[W.idx(Math.floor(nx), Math.floor(ny))] !== S.CRUMBLE) { e.x = nx; e.y = ny; e.face = Math.atan2(dy, dx); } else if (e.patrol) e.pi++;
+          if (g1 > -Infinity && Math.abs(g1 - g0) < 0.45 && !isFrag(W.surf[W.idx(Math.floor(nx), Math.floor(ny))])) { e.x = nx; e.y = ny; e.face = Math.atan2(dy, dx); } else if (e.patrol) e.pi++;
         }
         const g = W.heightAt(e.x, e.y); e.z = g > -Infinity ? g : e.z - 5 * dt;
         if (e.z < W.zmin - 6) { e.alive = false; continue; }
@@ -555,6 +556,7 @@
     if (turn > 0.5 && vmax < 15) vmax = Math.max(4.2, vmax - turn * 5);
     const W = this.world, ci = W.idx(Math.floor(m.x), Math.floor(m.y));
     if (ci >= 0 && W.surf[ci] === S.ICE) vmax = Math.min(vmax, 6);
+    for (let k = 0; k <= 3; k++) { const q = p[Math.min(p.length - 1, this.pi + k)], qi = W.idx(Math.floor(q.x), Math.floor(q.y)); if (qi >= 0 && W.surf[qi] === S.GLASS) { vmax = Math.min(vmax, 5.2); break; } }
     /* wait for the safe moment before a trap */
     for (const h of this.hz) {
       if (h.type !== 'laser' && h.type !== 'crusher' && h.type !== 'spikes') continue;

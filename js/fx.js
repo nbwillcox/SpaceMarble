@@ -35,6 +35,8 @@
   FX.glowPop = function (x, y, z, r, color, dur) { put(np({ kind: 'glow', add: true, x, y, z, size: r, grow: 0.9, life: dur || 0.35, color })); };
   FX.ring = function (x, y, z, r0, r1, color, dur, lw) { put(np({ kind: 'ring', add: true, x, y, z, size: r0, r1, life: dur || 0.5, color, lw: lw || 3 })); };
   FX.beam = function (x, y, z, h, color, dur, w) { put(np({ kind: 'beam', add: true, x, y, z, size: h, r1: w || 10, life: dur || 0.6, color })); };
+  /* slow drifting motes of light that make the air around the marble feel alive */
+  FX.mote = function (x, y, z, color) { put(np({ kind: 'glow', add: true, x, y, z, vx: U.rand(-0.15, 0.15), vy: U.rand(-0.15, 0.15), vz: U.rand(0.1, 0.45), size: U.rand(3, 6), grow: -0.35, life: U.rand(2.2, 4.2), color })); };
   FX.trail = function (x, y, z, color, size, life) { put(np({ kind: 'glow', add: true, x, y, z, size: size || 6, grow: -0.7, life: life || 0.2, color })); };
   FX.smoke = function (x, y, z, n, size, tint) {
     n = Math.ceil(n * lim());
@@ -48,7 +50,7 @@
   FX.shards = function (x, y, z, n, speed, hue, vx, vy) {
     n = Math.ceil(n * (S.reduced ? 0.5 : window.TK && window.TK.on ? 0.8 : 1));
     for (let i = 0; i < n; i++) {
-      const a = Math.random() * TAU, v = speed * (0.3 + Math.random() * 0.8), sz = U.rand(3.5, 9.5), k = (3 + Math.random() * 2) | 0, pts = [];
+      const a = Math.random() * TAU, v = speed * (0.3 + Math.random() * 0.8), sz = U.rand(6, 14), k = (3 + Math.random() * 2) | 0, pts = [];
       for (let j = 0; j < k; j++) { const ang = (j / k) * TAU + Math.random() * 0.6, r = sz * (j % 2 ? 0.45 : 1); pts.push([Math.cos(ang) * r, Math.sin(ang) * r * 0.8]); }
       put(np({ kind: 'shard', x, y, z, vx: Math.cos(a) * v + (vx || 0) * 0.5, vy: Math.sin(a) * v + (vy || 0) * 0.5, vz: U.rand(1.5, 1 + speed * 0.9), rot: Math.random() * TAU, vr: U.rand(-12, 12), life: U.rand(1.2, 2.4), g: 24, bounce: 0.45, drag: 0.5, pts, color: hue, size: sz }));
     }

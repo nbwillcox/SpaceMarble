@@ -101,7 +101,8 @@
   A.sfx.respawn = function () { [N.C5, N.E5, N.G5, N.C6, N.E6].forEach((f, i) => tone(f, 0.12, 'p25', 0.08, 0, i * 0.045)); noise(0.35, 0.06, 6000, 0, null, 1.4, 'highpass'); };
   A.sfx.tilecrack = function (k) { noise(0.07, 0.14, 1500 + k * 1500, 0, null, 2); tone(300 - k * 90, 0.09, 'square', 0.05, 120); };
   A.sfx.tilebreak = function () { noise(0.55, 0.22, 500, 0, null, 0.6); noise(0.3, 0.14, 2200, 0.05, null, 1.4); tone(90, 0.4, 'sawtooth', 0.16, 36); for (let i = 0; i < 4; i++) noise(0.05, 0.08, 1800 + i * 500, 0.12 + i * 0.07, null, 2); };
-  A.sfx.tileform = function () { tone(500, 0.14, 'p25', 0.05, 900); };
+  A.sfx.glassCrack = function (k) { noise(0.05, 0.16, 6200, 0, null, 3); tone(2600 + k * 900, 0.3, 'sine', 0.07, 1700); tone(3400, 0.18, 'sine', 0.04, 2300, 0.03); };
+  A.sfx.glassBreak = function () { noise(0.35, 0.2, 5200, 0, null, 1.4); noise(0.14, 0.16, 8500, 0, null, 2, 'highpass'); for (let i = 0; i < 5; i++) tone(1800 + Math.random() * 2400, 0.1 + Math.random() * 0.2, 'sine', 0.06, 800 + Math.random() * 600, i * 0.04); tone(110, 0.3, 'triangle', 0.1, 50); };  A.sfx.tileform = function () { tone(500, 0.14, 'p25', 0.05, 900); };
   A.sfx.laser = function () { tone(1600, 0.16, 'sawtooth', 0.06, 400); noise(0.12, 0.05, 6000, 0, null, 1, 'highpass'); };
   A.sfx.slam = function () { if (!gate('slam', 60)) return; tone(70, 0.45, 'sawtooth', 0.22, 24); noise(0.3, 0.2, 380, 0, null, 0.8); noise(0.12, 0.12, 1800, 0.01); };
   A.sfx.spike = function () { tone(1200, 0.07, 'square', 0.05, 2200); noise(0.06, 0.08, 4200, 0, null, 2); };

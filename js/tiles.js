@@ -110,7 +110,16 @@
       x.fillStyle = GFX.lg(x, 0, 0, T, T, [[0, hsl(hh, 50, 14)], [1, hsl(hh, 60, 8)]]); x.fillRect(0, 0, T, T);
       x.fillStyle = hsl(hh, 70, 40, 0.12); x.fillRect(10, 10, T - 20, T - 20);
       rivets(x, hh); bevel(x, hh, true); seam(x, hh, 0.9, 3);
-    } else if (kind === S.BOUNCE) {
+    } else if (kind === S.GLASS) {
+      /* a pane of fragile glass: see-through, framed in bright light, with a few specular streaks */
+      x.clearRect(0, 0, T, T);
+      x.fillStyle = GFX.lg(x, 0, 0, T, T, [[0, 'rgba(150,235,255,0.26)'], [0.5, 'rgba(90,190,240,0.14)'], [1, 'rgba(60,150,230,0.24)']]); x.fillRect(0, 0, T, T);
+      x.fillStyle = 'rgba(255,255,255,0.22)'; x.beginPath(); x.moveTo(10, 62); x.lineTo(62, 10); x.lineTo(82, 10); x.lineTo(10, 82); x.fill();
+      x.beginPath(); x.moveTo(60, 118); x.lineTo(118, 60); x.lineTo(118, 74); x.lineTo(74, 118); x.fill();
+      x.strokeStyle = 'rgba(190,248,255,0.55)'; x.lineWidth = 2; x.beginPath(); x.moveTo(T / 2, 8); x.lineTo(T / 2, T - 8); x.moveTo(8, T / 2); x.lineTo(T - 8, T / 2); x.stroke();
+      x.strokeStyle = 'rgba(200,250,255,0.95)'; x.lineWidth = 5; x.strokeRect(2.5, 2.5, T - 5, T - 5);
+      x.strokeStyle = 'rgba(255,255,255,0.95)'; x.lineWidth = 2; x.strokeRect(7, 7, T - 14, T - 14);
+      for (const [px, py] of [[7, 7], [T - 7, 7], [7, T - 7], [T - 7, T - 7]]) { x.fillStyle = '#fff'; x.beginPath(); x.arc(px, py, 4, 0, TAU); x.fill(); }    } else if (kind === S.BOUNCE) {
       x.fillStyle = GFX.lg(x, 0, 0, T, T, [[0, '#3a1050'], [1, '#14041c']]); x.fillRect(0, 0, T, T);
       x.strokeStyle = 'rgba(255,90,230,0.8)'; x.lineWidth = 4; for (const r of [20, 36, 52]) { x.beginPath(); x.arc(64, 64, r, 0, TAU); x.stroke(); }
       x.fillStyle = 'rgba(255,90,230,0.5)'; x.beginPath(); x.arc(64, 64, 10, 0, TAU); x.fill();
@@ -130,11 +139,12 @@
   Tiles.build = function (th) {
     const t = { th, panel: [], surf: {} };
     for (let m = 0; m < 5; m++) { t.panel[m] = []; for (let v = 0; v < (m === 0 ? 4 : 1); v++) t.panel[m][v] = panel(th, m, v); }
-    for (const k of [S.ICE, S.GOO, S.ACID, S.CRUMBLE, S.BOOST, S.CONVEY, S.BOUNCE, S.GOAL, S.START]) { t.surf[k] = []; for (let v = 0; v < (k === S.CRUMBLE || k === S.ICE ? 3 : 1); v++) t.surf[k][v] = surface(th, k, v); }
+    for (const k of [S.ICE, S.GOO, S.ACID, S.CRUMBLE, S.GLASS, S.BOOST, S.CONVEY, S.BOUNCE, S.GOAL, S.START]) { t.surf[k] = []; for (let v = 0; v < (k === S.CRUMBLE || k === S.ICE ? 3 : 1); v++) t.surf[k][v] = surface(th, k, v); }
     const h = th.hue;
     t.sideA = hsl(h, 45, 7); t.sideB = hsl(h, 45, 11); t.trim = hsl(h, 95, 62, 0.85); t.trimDim = hsl(h, 80, 50, 0.4);
     t.railTop = hsl(h, 80, 62); t.railX = hsl(h, 60, 30); t.railY = hsl(h, 60, 19); t.railLamp = th.lamp || hsl(h, 100, 70);
     t.panelRgb = hsl(h, 40, 15);
+    t.lampRgba = hsl(h, 100, 72, 1).replace('hsla', 'hsla');
     return t;
   };
   Tiles.texFor = function (t, world, i) {
@@ -174,7 +184,22 @@
         x.fillStyle = 'rgba(' + col + ',' + (0.65 * Math.sin(k * 3.14)) + ')'; x.beginPath(); x.arc(px, py, 4 + k * 7, 0, TAU); x.fill();
         x.strokeStyle = 'rgba(255,255,255,' + (0.5 * Math.sin(k * 3.14)) + ')'; x.lineWidth = 1.5; x.stroke();
       }
-    } else if (surf === S.CRUMBLE && crack > 0) {
+    } else if (surf === S.GLASS) {
+      const k = (t * 0.45 + (seed & 7) * 0.2) % 2;
+      x.fillStyle = 'rgba(255,255,255,0.28)'; const o = (k - 0.4) * 160; x.beginPath(); x.moveTo(o, 0); x.lineTo(o + 18, 0); x.lineTo(o - 50 + 18, T); x.lineTo(o - 50, T); x.fill();
+      if (crack > 0) {
+        const lines = 3 + Math.floor(crack * 7);
+        x.lineCap = 'round'; x.lineJoin = 'round';
+        for (let pass = 0; pass < 2; pass++) {
+          const r2 = U.mulberry((seed + 3) * 911);
+          for (let i = 0; i < lines; i++) {
+            let px = 64 + (r2() - 0.5) * 24, py = 64 + (r2() - 0.5) * 24, a = r2() * TAU; const len = 34 + crack * 70;
+            x.beginPath(); x.moveTo(px, py);
+            for (let s = 0; s < 5; s++) { a += (r2() - 0.5) * 1.1; px += Math.cos(a) * len / 5; py += Math.sin(a) * len / 5; x.lineTo(px, py); }
+            x.strokeStyle = pass === 0 ? 'rgba(0,30,60,0.8)' : 'rgba(235,252,255,' + (0.7 + crack * 0.3) + ')'; x.lineWidth = pass === 0 ? 5 : 2; x.stroke();
+          }
+        }
+      }    } else if (surf === S.CRUMBLE && crack > 0) {
       /* fissures grow with damage; the deeper ones glow white-hot */
       const rnd = U.mulberry((seed + 1) * 773);
       const lines = 3 + Math.floor(crack * 6);

@@ -25,5 +25,5 @@ for (const lv of G.LEVELS) {
     if (verbose && ticks - lastLog >= 120) { lastLog = ticks; console.log('  ' + (ticks / 120).toFixed(0) + 's pi=' + sim.pi + '/' + level.path.length + ' pos=' + sim.m.x.toFixed(1) + ',' + sim.m.y.toFixed(1) + ',' + sim.m.z.toFixed(1) + ' v=' + Math.hypot(sim.m.vx, sim.m.vy).toFixed(1)); }
   }
   const t = ticks / 120;
-  console.log('L' + level.id + ' ' + level.name + ': ' + (sim.state === 'finish' ? 'FINISH' : sim.state.toUpperCase() + ' at path ' + sim.pi + '/' + level.path.length) + ' in ' + t.toFixed(1) + 's (limit ' + level.time + ', par ' + level.par + ') deaths=' + sim.deaths + ' falls=' + sim.falls + ' maxV=' + maxSpeed.toFixed(1) + ' cells=' + level.world.kind.reduce((a, v) => a + v, 0) + ' path=' + level.path.length + ' ' + JSON.stringify(evCount));
+  console.log('L' + level.id + ' ' + level.name + ': ' + (sim.state === 'finish' ? 'FINISH' : sim.state.toUpperCase() + ' at path ' + sim.pi + '/' + level.path.length) + ' in ' + t.toFixed(1) + 's (limit ' + level.time + ', par ' + level.par + ') deaths=' + sim.deaths + ' falls=' + sim.falls + ' maxV=' + maxSpeed.toFixed(1) + (level.overlaps ? ' OVERLAPS=' + level.overlaps + '@' + level.overlapAt : '') + ' cells=' + level.world.kind.reduce((a, v) => a + v, 0) + ' path=' + level.path.length + ' ' + JSON.stringify(evCount));
 }

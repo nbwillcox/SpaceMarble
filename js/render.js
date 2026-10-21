@@ -69,14 +69,14 @@
     if (which === 0) { /* +x edge */ j = W.idx(ix + 1, iy); hA = hz + sxv; hB = hz + sxv + syv; ex0 = ix + 1; ey0 = iy; if (j >= 0 && W.kind[j]) { nA = W.hz[j] + W.dz[j]; nB = nA + W.sy[j]; } }
     else { /* +y edge */ j = W.idx(ix, iy + 1); hA = hz + syv; hB = hz + sxv + syv; ex0 = ix; ey0 = iy + 1; if (j >= 0 && W.kind[j]) { nA = W.hz[j] + W.dz[j]; nB = nA + W.sx[j]; } }
     const void_ = nA === undefined;
-    const DEPTH = 1.15;
+    const glass = W.surf[i] === S.GLASS, DEPTH = glass ? 0.2 : 1.15;
     let bA, bB;
     if (void_) { bA = hA - DEPTH; bB = hB - DEPTH; } else { bA = Math.min(hA, nA); bB = Math.min(hB, nB); if (hA - bA < 0.02 && hB - bB < 0.02) return; }
     const exA = ex0, eyA = ey0, exB = which === 0 ? ex0 : ex0 + 1, eyB = which === 0 ? ey0 + 1 : ey0;
     const ax = R.ox + (exA - eyA) * hw, bx = R.ox + (exB - eyB) * hw;
     const ayT = R.oy + (exA + eyA) * hh - hA * zs, byT = R.oy + (exB + eyB) * hh - hB * zs;
     const ayB = R.oy + (exA + eyA) * hh - bA * zs, byB = R.oy + (exB + eyB) * hh - bB * zs;
-    const col = which === 0 ? t.sideB : t.sideA;
+    const col = glass ? 'rgba(110,205,245,0.42)' : (which === 0 ? t.sideB : t.sideA);
     if (void_) {
       /* a thick slab that fades into the dark: three bands */
       const bands = [[0, 0.38, 1], [0.38, 0.74, 0.6], [0.74, 1, 0.28]];
@@ -105,8 +105,8 @@
     ctx.drawImage(tex, 0, 0);
     const s = W.surf[i];
     if (s !== S.NORMAL) {
-      const crack = s === S.CRUMBLE ? W.crack[i] : 0;
-      if (s === S.BOOST || s === S.CONVEY || s === S.ICE || s === S.BOUNCE || s === S.ACID || s === S.GOO || s === S.GOAL || crack > 0) {
+      const crack = (s === S.CRUMBLE || s === S.GLASS) ? W.crack[i] : 0;
+      if (s === S.BOOST || s === S.CONVEY || s === S.ICE || s === S.BOUNCE || s === S.ACID || s === S.GOO || s === S.GOAL || s === S.GLASS || crack > 0) {
         ctx.save(); ctx.beginPath(); ctx.rect(0, 0, T, T); ctx.clip();
         TL.overlay(ctx, s, W.aux[i], t, W.seed[i], crack, 0);
         ctx.restore();
@@ -164,12 +164,17 @@
       za = base(ax, ay) + rh; zb = base(bx, by) + rh;
       ctx.strokeStyle = t.railLamp; ctx.lineWidth = Math.max(1, 1.5 * R.zoom); ctx.globalAlpha = 0.9;
       ctx.beginPath(); ctx.moveTo(X(ax, ay), Y(ax, ay, za)); ctx.lineTo(X(bx, by), Y(bx, by, zb)); ctx.stroke(); ctx.globalAlpha = 1;
+      /* a lamp glows on every few rails */
+      if ((((ix * 5 + iy * 3 + bit) & 3) === 0) && R.zoom > 0.45) {
+        const mx = (ax + bx) / 2, my = (ay + by) / 2, lz = (za + zb) / 2;
+        ctx.globalCompositeOperation = 'lighter'; GFX.drawGlow(ctx, t.lampRgba, X(mx, my), Y(mx, my, lz + 0.05), 17 * R.zoom, 0.85); ctx.globalCompositeOperation = 'source-over';
+      }
     }
   }
 
   R.drawCell = function (ctx, W, i, ix, iy, t, sides, top, rails) {
     let jx = 0, jy = 0;
-    if (W.surf[i] === S.CRUMBLE && W.crack[i] > 0.05) { const a = W.crack[i] * 1.6 * R.zoom; jx = Math.sin(t * 61 + i) * a; jy = Math.cos(t * 53 + i * 3) * a * 0.6; }
+    if ((W.surf[i] === S.CRUMBLE || W.surf[i] === S.GLASS) && W.crack[i] > 0.05) { const a = W.crack[i] * 1.6 * R.zoom; jx = Math.sin(t * 61 + i) * a; jy = Math.cos(t * 53 + i * 3) * a * 0.6; }
     if (sides) { sideFace(ctx, W, i, ix, iy, 0); sideFace(ctx, W, i, ix, iy, 1); }
     if (top) { const g = cellGeom(W, i, ix, iy, jx, jy); drawTop(ctx, W, i, ix, iy, g, t); drawTrim(ctx, W, i, ix, iy, g); }
     if (rails && W.rail[i]) drawRails(ctx, W, i, ix, iy, rails === true ? W.rail[i] : (W.rail[i] & rails), jx, jy);

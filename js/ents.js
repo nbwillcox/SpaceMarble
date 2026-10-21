@@ -306,7 +306,7 @@
         const a = k > 0.7 ? 1 - (k - 0.7) / 0.3 : 1;
         ctx.save(); ctx.translate(x, y); ctx.rotate(p.rot); ctx.scale(R.zoom, R.zoom);
         ctx.globalAlpha = a * 0.9;
-        ctx.fillStyle = 'hsla(' + (p.color || 195) + ',90%,62%,0.55)'; ctx.strokeStyle = 'rgba(230,252,255,0.95)'; ctx.lineWidth = 1.3;
+        ctx.fillStyle = 'hsla(' + (p.color || 195) + ',95%,58%,0.72)'; ctx.strokeStyle = 'rgba(240,254,255,1)'; ctx.lineWidth = 1.8;
         ctx.beginPath(); ctx.moveTo(p.pts[0][0], p.pts[0][1]); for (let j = 1; j < p.pts.length; j++) ctx.lineTo(p.pts[j][0], p.pts[j][1]); ctx.closePath(); ctx.fill(); ctx.stroke();
         ctx.globalAlpha = a * 0.7; ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.moveTo(p.pts[0][0], p.pts[0][1]); ctx.lineTo(p.pts[1][0] * 0.6, p.pts[1][1] * 0.6); ctx.lineTo(0, 0); ctx.fill();
         ctx.restore();
@@ -337,6 +337,8 @@
   R.drawScene = function (ctx, sim, t) {
     const m = sim.m, W = R.world;
     R.t = t; R.sim = sim;
+    ctx.setTransform(R.ps, 0, 0, R.ps, 0, 0);
+    if (G.scenery) G.scenery.draw(ctx, t);
     R.drawTerrain(ctx, t);
     ctx.setTransform(R.ps, 0, 0, R.ps, 0, 0);
     /* light pool under the marble */
