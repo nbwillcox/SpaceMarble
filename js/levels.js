@@ -34,7 +34,7 @@
 
   /* ======================================================================== 1. PRACTICE RACE */
   L.push({
-    id: 1, name: 'PRACTICE RACE', sub: 'Launch Deck', time: 70, par: 30, seed: 11, music: 0,
+    id: 1, name: 'PRACTICE RACE', sub: 'Launch Deck', time: 60, par: 26, seed: 11, music: 0,
     theme: { hue: 212, accent: '#37b6ff', accent2: '#ff3dd0', lamp: '#8fe4ff' },
     build() {
       const b = new Builder(this.theme);
@@ -85,7 +85,7 @@
 
   /* ======================================================================== 2. BEGINNER RACE */
   L.push({
-    id: 2, name: 'BEGINNER RACE', sub: 'Crystal Reach', time: 80, par: 38, seed: 23, music: 1,
+    id: 2, name: 'BEGINNER RACE', sub: 'Crystal Reach', time: 70, par: 34, seed: 23, music: 1,
     theme: { hue: 285, accent: '#c06aff', accent2: '#37e6ff', lamp: '#e2a8ff' },
     build() {
       const b = new Builder(this.theme);
@@ -111,8 +111,8 @@
       b.gap(3, -0.6);
       b.strip(6, { capStart: false });
       b.right();
-      b.width(1);
-      b.flat(10); gem(b, 5, 0);
+      b.width(2);
+      b.flat(10, { rails: false }); gem(b, 5, 0);
       b.width(5);
       b.flat(4);
       /* bumper field */
@@ -154,7 +154,7 @@
 
   /* ======================================================================== 3. INTERMEDIATE RACE */
   L.push({
-    id: 3, name: 'INTERMEDIATE RACE', sub: 'Frost Foundry', time: 110, par: 56, seed: 37, music: 2,
+    id: 3, name: 'INTERMEDIATE RACE', sub: 'Frost Foundry', time: 95, par: 52, seed: 37, music: 2,
     theme: { hue: 172, accent: '#35f0d0', accent2: '#ffd24a', lamp: '#a8fff0' },
     build() {
       const b = new Builder(this.theme);
@@ -221,7 +221,7 @@
 
   /* ======================================================================== 4. AERIAL RACE */
   L.push({
-    id: 4, name: 'AERIAL RACE', sub: 'Skyrail', time: 100, par: 50, seed: 41, music: 3,
+    id: 4, name: 'AERIAL RACE', sub: 'Skyrail', time: 80, par: 40, seed: 41, music: 3,
     theme: { hue: 132, accent: '#6dff7a', accent2: '#ff9a3d', lamp: '#b8ffbd' },
     build() {
       const b = new Builder(this.theme);
@@ -235,8 +235,8 @@
       b.strip(6);
       b.right();
       /* narrow rail with a turret */
-      b.width(1);
-      b.flat(12); turret(b, 6, 0, 0, { period: 2.6 });
+      b.width(2);
+      b.flat(12, { rails: false }); turret(b, 6, 0, 0, { period: 2.6 });
       b.width(3);
       b.flat(3); timeGem(b, 1.5, 0);
       b.ramp(10, -3.6);
@@ -274,7 +274,7 @@
 
   /* ======================================================================== 5. SILLY RACE */
   L.push({
-    id: 5, name: 'SILLY RACE', sub: 'Pinball Garden', time: 95, par: 44, seed: 53, music: 4,
+    id: 5, name: 'SILLY RACE', sub: 'Pinball Garden', time: 75, par: 36, seed: 53, music: 4,
     theme: { hue: 38, accent: '#ffb347', accent2: '#ff3dd0', lamp: '#ffe0a8' },
     build() {
       const b = new Builder(this.theme);
@@ -340,7 +340,7 @@
 
   /* ======================================================================== 6. ULTIMATE RACE */
   L.push({
-    id: 6, name: 'ULTIMATE RACE', sub: 'Event Horizon', time: 130, par: 70, seed: 67, music: 5,
+    id: 6, name: 'ULTIMATE RACE', sub: 'Event Horizon', time: 110, par: 62, seed: 67, music: 5,
     theme: { hue: 335, accent: '#ff4a8d', accent2: '#37e6ff', lamp: '#ffb0cf' },
     build() {
       const b = new Builder(this.theme);
@@ -355,8 +355,8 @@
       b.flat(9); laserGate(b, 3, { period: 2.8, on: 1.0, phase: 0 }); crusher(b, 6.5, 2, { period: 3.2, phase: 0.8 });
       b.flat(2);
       b.left();
-      b.width(1);
-      b.flat(9); turret(b, 6, 0, 0, { period: 2.2 });
+      b.width(2);
+      b.flat(9, { rails: false }); turret(b, 6, 0, 0, { period: 2.2 });
       b.width(5);
       b.flat(8); mine(b, 2.5, -1.4); mine(b, 4.5, 1.4); mine(b, 6.5, -1.4);
       b.width(3);

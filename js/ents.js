@@ -52,6 +52,8 @@
     const blink = m.inv > 0 && m.inv < 1.5 && ((t * 24) | 0) % 2 === 0;
     ctx.globalAlpha = fade * (blink ? 0.45 : 1);
     const offx = (m.rollx - m.rolly) * m.r * R.hw, offy = (m.rollx + m.rolly) * m.r * R.hh;
+    const sq = G.game ? G.game.sq || 0 : 0;                                           /* squash on a hard landing */
+    if (sq > 0.01) { const qx = 1 + sq * 0.32, qy = 1 - sq * 0.36; ctx.save(); ctx.translate(cx, cy + rad * (1 - qy)); ctx.scale(qx, qy); ctx.translate(-cx, -cy); }
     drawSphere(ctx, cx, cy, rad, 'glass', offx * 1.1, offy * 1.1, tint);
     const stage = m.integ < 0.34 ? 2 : m.integ < 0.67 ? 1 : 0;
     if (stage > 0) {
@@ -59,6 +61,7 @@
       ctx.drawImage(spr, cx - rad, cy - rad, rad * 2, rad * 2);
       add(ctx, () => { ctx.globalAlpha = (stage === 2 ? 0.55 : 0.3) * (0.7 + 0.3 * Math.sin(t * 14)) * fade; ctx.drawImage(spr, cx - rad, cy - rad, rad * 2, rad * 2); });
     }
+    if (sq > 0.01) ctx.restore();
     ctx.globalAlpha = 1;
   }
 

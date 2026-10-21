@@ -26,9 +26,9 @@ Play in any orientation. Tilt your device to roll the marble (the angle you hold
 
 1. **Practice Race, Launch Deck:** a gentle first run: ramps, a hairpin, a narrow lane and a stair of drops.
 2. **Beginner Race, Crystal Reach:** a steel orb gives chase, the floor crumbles under you, and there is your first jump.
-3. **Intermediate Race, Frost Foundry:** sheet ice, laser gates, an acid pool, a muncher, a hydraulic press and a spike plate.
-4. **Aerial Race, Skyrail:** three launch jumps, a one-tile rail under turret fire, a void vacuum and a mine field.
-5. **Silly Race, Pinball Garden:** conveyors, sticky goo, pinball bumpers, a spinning sweeper and opening and closing gates.
+3. **Intermediate Race, Frost Foundry:** sheet ice, laser gates, an acid pool, a glass bridge, a muncher, a hydraulic press, a spike plate and an acid coil.
+4. **Aerial Race, Skyrail:** three launch jumps, a railless bridge under turret fire, a void vacuum, a mine field and a glass runway.
+5. **Silly Race, Pinball Garden:** conveyors, sticky goo, pinball bumpers, a spinning sweeper, opening and closing gates and a trampoline over a collapsing floor.
 6. **Ultimate Race, Event Horizon:** all of it at once, with less time on the clock.
 
 Reach the checkered finish pad before the timer runs out. Time you have left is a bonus and is carried over to the next race (up to 25 seconds). Finishing a race unlocks the next one in Race Select.
@@ -42,6 +42,8 @@ Reach the checkered finish pad before the timer runs out. Time you have left is 
 - **Smashing:** hit a steel orb at speed and it shatters instead (+500), and a fast marble flattens a muncher (+750).
 - **Pickups:** green time crystals add seconds, gold gems add points.
 - **Crumbling tiles** crack and fall when you stand on them, and grow back a few seconds later.
+- **Fragile glass** takes a gentle roll but shatters under speed or a hard landing, so ease off the tilt; it re-forms after a few seconds.
+- **Acid, ice and goo** burn, slide and drag; **boost strips** and **conveyors** push; **pads** throw you upward; **bumpers** pinball you away.
 - **Score:** points for pickups and smashes, 100 per second left on the clock and 1,000 x the race number. Local top-10 high scores and each race's best time are kept in your browser.
 
 ## Run it locally

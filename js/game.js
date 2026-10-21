@@ -78,7 +78,7 @@
     if (Game.slow > 0) { Game.slow -= dtReal; Game.ts = 0.28; } else Game.ts += (1 - Game.ts) * Math.min(1, dtReal * 6);
     dt *= Game.ts;
     Game.bannerT = Math.max(0, Game.bannerT - dtReal); Game.timePop = Math.max(0, Game.timePop - dtReal); Game.hintT = Math.max(0, Game.hintT - dtReal);
-    Game.kick *= Math.max(0, 1 - 6 * dtReal);
+    Game.kick *= Math.max(0, 1 - 6 * dtReal); Game.sq = Math.max(0, (Game.sq || 0) - dtReal * 6);
     FX.update(dt);
     Game.moteT = (Game.moteT || 0) - dtReal;
     if (Game.moteT <= 0 && !S.reduced && Game.level) { Game.moteT = 0.09; const c = Game.cam; FX.mote(c.x + U.rand(-9, 9), c.y + U.rand(-9, 9), c.z + U.rand(-2, 4), Game.level.theme.accent.replace('#', '') ? hexA(Game.level.theme.accent) : 'rgba(120,230,255,0.9)'); }
@@ -172,6 +172,7 @@
         case 'land': {
           if (e.level >= 1) { FX.dust(e.x, e.y, e.z, 4 + e.level * 3, 6 + e.level * 2); FX.sparks(e.x, e.y, e.z, 5 + e.level * 5, 4 + e.level * 2, 'rgba(160,230,255,1)', 0.4, 1.4); FX.ring(e.x, e.y, e.z, 0.1, 0.9 + e.level * 0.5, 'rgba(160,230,255,1)', 0.4, 2); }
           if (e.level >= 2) { FX.decal(e.x, e.y, e.z + 0.01, 0.9 + 0.2 * (e.rel - C.HIT_HARD), 7); FX.addShake(5 + e.level * 2); Game.kick = 1; FX.doFlash(0.15, '255,255,255'); }
+          if (e.level >= 1) Game.sq = Math.min(1, 0.3 + e.rel * 0.05);
           A.sfx.land(e.level); break;
         }
         case 'bump': FX.sparks(e.x + e.nx * -m.r, e.y + e.ny * -m.r, e.z + m.r, 6 + Math.min(12, e.speed), 3 + e.speed * 0.5, e.kind === 2 ? 'rgba(255,230,160,1)' : 'rgba(180,235,255,1)', 0.35, 1.5); if (e.speed > 7) FX.addShake(e.speed * 0.25); A.sfx.bump(e.speed); break;
@@ -185,7 +186,7 @@
         case 'tilebreak': if (e.glass) { FX.shards(e.x, e.y, e.z, 16, 4.5, 190, 0, 0); FX.sparks(e.x, e.y, e.z, 20, 6, 'rgba(220,250,255,1)', 0.6, 1.7); FX.ring(e.x, e.y, e.z, 0.2, 1.5, 'rgba(180,240,255,1)', 0.45, 3); FX.glowPop(e.x, e.y, e.z, 40, 'rgba(160,235,255,1)', 0.3); FX.addShake(4); A.sfx.glassBreak(); break; } FX.chunks(e.x, e.y, e.z, 12, 3.2); FX.dust(e.x, e.y, e.z, 8, 9, '#8a6a4e'); FX.sparks(e.x, e.y, e.z, 14, 5, 'rgba(255,170,90,1)', 0.6, 1.6); FX.ring(e.x, e.y, e.z, 0.2, 1.4, 'rgba(255,170,90,1)', 0.45, 3); FX.addShake(4); A.sfx.tilebreak(); break;
         case 'tileform': FX.ring(e.x, e.y, e.z, 0.1, 0.9, CY, 0.4, 2); A.sfx.tileform(); break;
         case 'laser': A.sfx.laser(); break;
-        case 'slam': FX.dust(e.x, e.y, e.z, 14, 11); FX.sparks(e.x, e.y, e.z, 18, 6, 'rgba(255,200,110,1)', 0.5, 1.8); FX.ring(e.x, e.y, e.z, 0.5, Math.max(e.w, e.h) * 1.1, 'rgba(255,190,90,1)', 0.5, 4); FX.addShake(7); A.sfx.slam(); break;
+        case 'slam': for (let k = 0; k < 4; k++) FX.decal(e.x + U.rand(-e.w, e.w) * 0.35, e.y + U.rand(-e.h, e.h) * 0.35, e.z + 0.01, 1.1, 7); FX.dust(e.x, e.y, e.z, 14, 11); FX.sparks(e.x, e.y, e.z, 18, 6, 'rgba(255,200,110,1)', 0.5, 1.8); FX.ring(e.x, e.y, e.z, 0.5, Math.max(e.w, e.h) * 1.1, 'rgba(255,190,90,1)', 0.5, 4); FX.addShake(7); A.sfx.slam(); break;
         case 'spike': A.sfx.spike(); break;
         case 'sweep': FX.sparks(e.x, e.y, e.z + 0.3, 12, 6, 'rgba(255,190,90,1)', 0.45, 1.8); FX.addShake(4); A.sfx.sweep(); break;
         case 'bumper': FX.sparks(e.x, e.y, e.z + 0.3, 14, 7, 'rgba(255,120,230,1)', 0.5, 1.8); FX.ring(e.x, e.y, e.z, 0.3, 1.2, 'rgba(255,120,230,1)', 0.35, 3); FX.glowPop(e.x, e.y, e.z + 0.3, 40, 'rgba(255,60,220,1)', 0.25); A.sfx.bumper(e.strength); break;

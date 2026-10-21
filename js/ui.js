@@ -110,7 +110,7 @@
     click('btnScoresBack', () => UI.show('title'));
     click('btnNext', () => M.nextRace());
     click('btnReplay', () => M.replayRace());
-    click('btnRetry', () => M.startRace(0));
+    click('btnRetry', () => M.startRace(Math.max(0, (G.game.level ? G.game.level.id : 1) - 1)));
     click('btnGoTitle', () => M.toTitle());
     $('recenter').addEventListener('click', () => { I.calibrate(); A.sfx.select(); });
     const save = () => {

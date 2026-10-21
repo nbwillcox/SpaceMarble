@@ -14,6 +14,10 @@ for (const lv of G.LEVELS) {
   if (only && String(lv.id) !== only) continue;
   const level = lv.build();
   const sim = new G.Sim(level, { god });
+  if (args.includes('--sloppy')) {                                       /* a clumsier driver: delayed, noisy, under-steering input */
+    const orig = sim.botInput.bind(sim), q = []; let nx = 0, ny = 0, seed = 5; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296 - 0.5; };
+    sim.botInput = () => { const b = orig(); q.push(b); if (q.length > 22) q.shift(); const d = q[0]; nx += (rnd() * 0.9 - nx) * 0.05; ny += (rnd() * 0.9 - ny) * 0.05; return { wx: d.wx * 0.75 + nx * 3, wy: d.wy * 0.75 + ny * 3 }; };
+  }
   sim.start();
   const dt = 1 / 120;
   let ticks = 0, lastLog = 0, maxSpeed = 0, evCount = {}, stuck = 0, lastPi = 0;
