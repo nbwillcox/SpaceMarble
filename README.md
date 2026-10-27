@@ -22,6 +22,10 @@ Up on the keyboard rolls the marble up the screen, away from you, whatever way t
 
 Play in any orientation. Tilt your device to roll the marble (the angle you hold it at when the countdown starts is 'flat'; tap **RECENTER** to reset it), or drag a thumb on the screen if your device has no tilt sensor. On iPhone and iPad, allow motion access when asked. The pause button opens the menu. The on-screen controls appear on touch devices automatically; Settings has size, opacity and a left-handed layout. Use your browser's *Add to Home Screen* to install it as a full-screen app.
 
+### Controller
+
+Plug in a gamepad and it just works: the stick or D-pad rolls the marble, **X** recentres, **Y** restarts, **Start** pauses. In menus the D-pad / left stick moves the highlight, **A** selects, **B** goes back and **Start** plays or resumes. **Settings -> Controller** has a dead-zone slider and lets you remap every button.
+
 ## The six races
 
 1. **Practice Race, Launch Deck:** a gentle first run: ramps, a hairpin, a narrow lane and a stair of drops.
